@@ -1,0 +1,39 @@
+stack: python 3.9
+
+branches:
+  only:
+    - main
+
+image:
+  - Visual Studio 2019
+  - Ubuntu
+
+configuration: Release
+platform: x64
+
+matrix:
+  fast_finish: true
+
+install:
+  # Make sure we get the bash that comes with git, not WSL bash
+  - ps: $env:Path = "C:\Python39-x64;C:\Python39-x64\Scripts;C:\Program Files\Git\bin;$env:Path"
+
+build_script:
+  - bash -c "./build.sh"
+  - ls -lsa ./dist/
+
+artifacts:
+  - path: 'dist/*.*'
+    name: png2photon
+
+deploy:
+  release: png2photon-v$(APPVEYOR_BUILD_VERSION)
+  description: 'Release description'
+  provider: GitHub
+  auth_token:
+    secure: jFqDxql4sHXHJ3THWWQ+yl8UvVqH5rbKKbjI3p/qJm/rO5bn9NNl7TmEBF8YmVqm
+  draft: true
+  prerelease: true
+  force_update: true
+  on:
+    branch: main                   # release from master branch only
