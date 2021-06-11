@@ -1,6 +1,7 @@
 from PIL import Image
 from structs import PhotonFilePreamble, PhotonFileHeader, PhotonFilePreview, PhotonLayersDefHeader, PhotonLayerDef
 from layer_encoder import encode_layer
+from config import conf
 
 
 class PhotonFileBuilder(object):
@@ -35,10 +36,13 @@ class PhotonFileBuilder(object):
         })
 
     def build_photon_file(self, src_image_file, output_file):
+        pixel_size_mm = conf.PixelSize / 1000
+        offset_x_pixels = round(conf.OffsetX / pixel_size_mm)
+        offset_y_pixels = round(conf.OffsetY / pixel_size_mm)
         pil_image = Image.open(src_image_file)
         pixels_matrix = pil_image.load()
         layer_data = encode_layer(
-            pixels_matrix, pil_image.size[0], pil_image.size[1], 2560, 1620)
+            pixels_matrix, pil_image.size[0], pil_image.size[1], conf.ScreenWidth, conf.ScreenHeight, offset_x_pixels, offset_y_pixels)
         with open(output_file, 'wb') as out:
             out.write(self._build_preamble())
             out.write(self._build_header())
